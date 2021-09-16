@@ -1,0 +1,123 @@
+\chapter{Combining Multi-Type Data for High-Dimensional Classification}
+    
+\section{Introduction}
+
+Most phenotypic traits that have economic and agronomic importance are complex traits that are controlled by multiple genes, each of which have a small effect on the phenotypic expression. The development and subsequent advancements in  high-throughput genotyping technology has enabled the wide-spread use of genomic information for the prediction of phenotypic traits in plant breeding programs. One of the primary objective of plant breeding programs is to cross genotypes that have desirable traits in the hope of increasing genetic gains. The number of genotypes obtained from crosses could be practically infeasible to test on the field. Genomic prediction (GP) allows breeders to efficiently select genotypes that have the best chance of succeeding in field trials. Genomic selection \cite{meuwissen_prediction_2001}, aka genomic prediction, was proposed as a method to use the entire genome to predict the phenotypic traits. The main goal of genomic selection  is to estimate the genomic estimated breeding values (GEBVs) for untested test genotypes with the help of models built using phenotypic and marker information of the training genotypes and use these GEBVs for selection purposes. The testing set contains genomic information for the genotypes, but not their phenotypic information. Since the testing set individuals are not phenotyped, genomic prediction helps reduce the breeding cycle time and consequently saves time, land, and cost. In addition, the ever-reducing cost of genotyping technology has also made genomic prediction methods more attractive for breeding programs.  \\
+
+Several statistical methods have been proposed for GP in the past two decades since \cite{meuwissen_prediction_2001}, which can be categorized into parametric, semi-parametric and non-parametric methods. Some popular parametric methods include Bayes ridge regression, least absolute shrinkage and selection operator (LASSO) \cite{tibshirani1996}, Bayes LASSO \cite{park_casella_2008}, G-BLUP \cite{hayes_accuracy_2009}, BayesA and Bayes B \cite{meuwissen_prediction_2001}. Common semi-parametric and non-parametric methods used in GP are reproducing kernal Hibert spaces (RKHS) \cite{gianola_genomic-assisted_2006, de_los_campos_semi-parametric_2010}, neural networks \cite{gianola_genomic-assisted_2006, gianola_predicting_2011, gonzalez_camacho_2012, perez_rodriguez_2012}, and support vector regression \cite{james_introduction_2013}. Several papers \cite{de_los_campos_2013, heslot_2012, azodi_benchmarking_2019, reka_howard_2014, crain_2018, haroldo_neves_2012, li_zhang_2018} have compared the various prediction methods, and the consensus is that no single method is best performing across all studies. A more comprehensive list of studies comparing the various GP methods can be found here \cite{de_los_campos_2013, montesinos_lopez_2021}. Improvements in computing speed as well as increased availability of graphics processing units (GPUs) has led to rapid improvements in deep learning approaches. Consequently, there is a growing body of literature applying deep learning methods to improve genomic prediction \cite{azodi_benchmarking_2019, montesinos_lopez_2018, montesinos-lopez_new_2019, montesinos_lopez_2021, li_zhang_2018, bellot_2018}. Genomic selection methods have been implemented in crops such as maize \cite{windhausen_2012, perez_rodriguez_2012, crossa_genomic_2014}, wheat \cite{crain_2018, haile_2018, jarquin_increasing_2017}, rice \cite{du_genomic_2018, Xu_rice_2014, spindel2015genomic, zeng2017rational}, legumes \cite{roorkiwal_genome-enabled_2016, roorkiwal_genomic-enabled_2018, burstin2015genetic, varshney2018accelerating}, cassava \cite{okeke2017accuracies, de_oliviera_2012}, apple \cite{roth2020genomic}, etc. \\
+
+Breeders are often interested in categorical phenotypic traits such as resistance to drought or salinity, susceptibility to disease, and days to maturity or flowering. While there is extensive literature covering prediction of continuous traits, there is limited literature developing genomic prediction models for classification. BGLR \cite{perez2014genome} is one of the popular R \cite{Rcite} packages for genomic prediction that implements Bayesian regression models and is capable of handling categorical responses. \cite{ghosal_sparse_2016} proposed a penalized forward selection based support vector classification method for classification in high-dimensional settings and showed superior performance compared to penalized approaches such as LASSO and elastic net as well as classical support vector classification on a genomic data set. \\ 
+
+
+Modern plant breeding programs are collecting an increasing amount of data of various types and several sources such as multiple secondary phenotypic traits (other than the main trait of interest), high-throughput phenotyping data, weather data, hyper-spectral images, and different types of -omics data such a metabolomics, proteomics, transcriptomics, etc. It is believed that many secondary phenotypic traits are often positively associated with the main trait, a fact that most prediction models do not take advantage of. Given the availability of different data mentioned above, an important question to investigate is how we could integrate these various data types to improve prediction. Early attempts at integration of data types for genomic prediction show promising results \cite{schrag_beyond_2018 , lopez-cruz_regularized_2020, arouisse_improving_2021, sandhu_combining_2021}. \\
+
+Integrating different data types becomes a complex challenge when the data types have very different dimensions. In the case of genomic prediction, the high-dimensional nature of the genomic data is well known. Genomic data is often found to be in the form of Single Nucleotide Polymorphisms (SNPs), which range in the thousands to tens of thousands. On the other hand, data types such as secondary traits are fewer than twenty. Naive concatenation of various data types into existing genomic prediction models could lead to poor results because of the differing sizes. Genomic variables would out-compete all other variable types to explain the variation in the response due to their sheer numbers. A key challenge in such scenarios is to build models that are able to access the unique information present in each data type in order to improve the prediction capabilities. \\
+
+Jarquin et al. (2021; in review) proposed a novel two-step classification method to combine two data types - secondary traits (low-dimensional) and genomic information (high-dimensional). Their method used a penalized forward selection based logistic regression inspired by high-dimensional prediction models such as FIRST \cite{ghosal_first_2009}, STORM \cite{turnbull_iterative_2013}, and penalized forward selection for SVC \cite{ghosal_sparse_2016}. It accounted for the genomic information ``crowding-out" issue and provided sparse models with favorable classification accuracy compared to standard machine learning methods such as random forests, SVMs and FDA. Sparsity in the final models allowed for easier interpretation of relationships between predictors and response, as well as determining important variables. \\
+
+In this chapter, we present an extension to the two-step classification method (Jarquin et al., 2021; in review), where we integrate three data types - secondary traits (low-dimensional), weather (medium-dimensional), and genomic information (high-dimensional). We compared our method to two standard classifiers such as random forests and SVMs. The three-stage method proposed in this work allows us to access the information present in each data type to improve prediction. While the method is developed in an agronomic setting, it can be easily implemented in any application of data-type integration where the data types are of differing dimensions. We believe that the model can be useful in the domain of precision medicine where the main trait can be the susceptibility to disease, the secondary traits being other physiological characteristics of a subject, the medium-dimensional data type being life-style and behavioral characteristics, and the high-dimensional data type being their genomic marker information. \\
+
+
+The rest of the chapter is organized as follows. First, we present an overview of the method, followed by a detailed description. Next, we describe the data set and its characteristics. Following that, we present the results of the method and compare them to the performance of other standard methods. Finally, we conclude with a discussion and future directions. \\
+
+\section{Overview}
+
+Penalized approaches to regression and classification are common in the presence of high-dimensional data. However, a classical penalized logistic regression approach does not work in our context because it does not allow for variables of certain data types to be considered for model building before others. One of the issues when combining multi-type data when the data are of differing dimensions is that high-dimensional data types such as genomic information outnumber the low-dimensional data types such as secondary traits and subsequently out-compete them to be selected in model building. In a naive concatenation approach, it is plausible that none of the secondary traits or weather variables are retained in the final model. In order to avoid this, we consider a forward selection approach whereby we include variables one at a time. Forward selection also allows control on the order in which data types are considered. By considering low-dimensional data types first, we ensure that all information present that is explaining the variability in the primary trait of interested is used by the classifier, before allowing higher-dimensional data types a chance to explain the variation in the response. \\
+
+Another issue in this problem is that the secondary traits are also impacted by the genomic variables as well as weather variables. Before considering all the variables in the model building, we must remove the effect of genomic and weather variables from the secondary traits and obtain their true intrinsic effects. This also ensures that the potential effect of genomic or weather variables are not mistakenly ascribed to the secondary traits. Separating out the effects will allow for simpler and cleaner interpretation of variable importance and relationships between the response and the explanatory variables. \\
+
+In the first stage of the modeling, we compute the intrinsic effect of the secondary traits devoid of the weather and genomic effects. Let us consider that we have $P$ secondary traits $(U_1, U_2, \dots, U_P)$, $Q$ weather variables $(W_1, W_2, \dots, W_Q)$, and $R$ genomic variables $(V_1, V_2, \dots, V_R)$. In order to remove the genomic and weather effects, we first regress the secondary traits on the set of weather variables, collect the residuals and then regress each of the residuals on the set of genomic variables to obtain double residuals $( \doublehat{U}_{1}, \doublehat{U}_{2}, \dots, \doublehat{U}_{P})$. Since the number of weather variables and genomic variables could be larger than the number of genotypes, least squares regression gives non-unique solutions that may not be stable. Hence, we use penalized regression methods such as adaptive LASSO and ridge regression. Adaptive LASSO \cite{zou2006adaptive} was proposed as an alternative to LASSO in the presence of high multicollinearity among explanatory variables, which is seen commonly in genomic data sets. \\
+
+In the second stage of the modeling, we use a training data set to build a logistic regression classifier in combination with a penalized forward selection scheme to include phenotypic residuals into the model before allowing weather variables and then allowing weather variables before allowing genomic variables. Through the iterative process of the forward selection scheme, we only select the most influential predictor at each step to enter the model. The coefficients of the logistic regression model are obtained through Newton-Raphson updates. \\
+
+Traditionally, a threshold of $p = 0.5$ is used for classification of predicted probabilities from the logistic classifier. However, depending on the class imbalance and the final form of the logistic classifier, this threshold may not be optimal in every scenario. Hence, in the third stage of modeling, we use an optimization data set to determine the optimal threshold to improve classification accuracy. Finally, we use the coefficients from stage 2 and the optimal threshold from stage 3 to predict the class assignment in the test data set and use the results to evaluate the performance of the model. \\
+
+\section{Methods}
+
+Let the binary main trait of interest be represented by $y_i$, the double residual secondary traits be denoted by $\doublehat{u}_i = (\doublehat{u}_{i1}, \doublehat{u}_{i2}, \dots, \doublehat{u}_{iP})$, the weather covariates be denoted by $w_i = (w_{i1}, w_{i2}, \dots, w_{iQ})$, and the genomic variables be denoted by $v_i = (v_{i1}, v_{i2}, \dots, v_{iR})$,  where $i = 1, 2, \dots, n$. Without loss of generality, let us assume that $E(U) = E(W) = E(V) = 0$ and $Var(U) = I_P$, $Var(W) = I_Q$, and $Var(v) = I_R$, where $U = (u_1,  u_2, \dots, u_n)$, $V = (v_1, v_2, \dots, v_n)$, and $W = (w_1, w_2, \dots, w_n)$. This can be implemented by replacing the variables with their standardized versions.  \\
+
+The first stage of the method involves evaluating the double residuals of the secondary traits by removing the effects of weather and genomic covariates. We use a penalized regression model to compute the residuals of each $u_{ip}$, where $p = 1, 2, \dots, P$. First, we  regress each of the secondary traits $u_{ip}$ on the weather variables and obtain the residuals $\hat{u}_{ip} = u_{ip} - w_i^T \hat{b}_p$, where $\hat{b}_p = (\hat{b}_{p1},\hat{b}_{p2}, \dots, \hat{b}_{pQ})$ are the corresponding regression coefficients. The regression coefficients are estimated by minimizing the penalized sum of squares:
+
+\begin{equation}
+    \sum_{i= 1}^n (u_{ip} - w_i^T b_p)^2 + \lambda \sum_{q = 1}^Q \text{pen}(|b_{pq}|),
+\end{equation}
+
+where the penalty function can be any of the standard penalty functions such as LASSO, aLASSO, ridge regression or SCAD penalties. We compared the various penalty functions, including the raw residuals with zero penalty, to determine which yielded in the best results. Each of the residuals are then regressed on the set of genomic variables through another round of penalized regression implementation to obtain the double residuals $\doublehat{u}_{ip} = \hat{u}_{ip} - v_i^T \hat{d}_p$, where $\hat{d}_p = (\hat{d}_{p1},\hat{d}_{p2}, \dots, \hat{d}_{pR})$ are the corresponding regression coefficients which are obtained by minimizing the following penalized sum of squares:
+
+\begin{equation}
+    \sum_{i= 1}^n (\hat{u}_{ip} - v_i^T d_p)^2 + \lambda \sum_{r = 1}^R \text{pen}(|d_{pr}|).
+\end{equation}
+
+Here again, the penalty function can take any of the forms mentioned above. \\
+
+After obtaining the intrinsic effect of the secondary traits which are represented by the double residuals obtained in the step one, we move on to the second stage of the method. Here, we implement the penalized forward selection to ensure that the double residuals are entered first into the model, followed by the weather covariates, and then followed by the genomic variables. This ensures that higher-dimensional data types do not overwhelm the smaller-dimensional data types and improve the variability in the response explained by the variables included in the model. We use a logistic classifier as the model structure for its simplicity and ease of interpretability. The probability mass function (PMF) of the $C$-class multinomial logistic classifier for class $c$ is given by:
+
+\begin{equation} \label{eq:pmf}
+    P(Y_i = c | \Theta) = \frac{\exp{\sum_{p = 1}^P \alpha_{cp} \doublehat{u}_{ip} + \sum_{q = 1}^Q \beta_{cq} w_{iq} + \sum_{r = 1}^R \gamma_{cr} v_{ir} }}{1 + \sum^C_{{c'}= 1} \exp{\sum_{p = 1}^P \alpha_{c'p} \doublehat{u}_{ip} + \sum_{q = 1}^Q \beta_{c'q} w_{iq} + \sum_{r = 1}^R \gamma_{c'r} v_{ir} } }, 
+\end{equation}
+
+where $\Theta = (\alpha_{c1}, \alpha_{c2}, \dots, \alpha_{cP}, \beta_{c1}, \beta_{c2}, \dots, \beta_{cQ}, \gamma_{c1}, \gamma_{c2}, \dots, \gamma_{cR})$ is a $C \times T$ matrix where $T = P + Q + R$. The classification for a new test observation is given by:
+\begin{equation}
+    \hat{c} = \arg \max_c P(Y_{(n+1)} = c | \hat{\Theta}),
+\end{equation}
+
+where $\hat{\Theta}$ is the set of coefficient estimates obtained from the Newton-Raphson estimation method with a LASSO penalty. \\
+
+\subsection{Newton-Raphson (NR) Method}
+
+Using the PMF function defined in Eqn. \ref{eq:pmf}, the log-likelihood function required for the NR method is given by:
+
+\begin{equation} \label{eq:log-lik}
+\begin{split}
+    f(\theta_{ct}|S) & = \sum_{i:y_i = c} \log\left( \frac{\exp{\sum_{p = 1}^P \alpha_{cp} \doublehat{u}_{ip} + \sum_{q = 1}^Q \beta_{cq} w_{iq} + \sum_{r = 1}^R \gamma_{cr} v_{ir} }}{1 + \sum^C_{{c'}= 1} \exp{\sum_{p = 1}^P \alpha_{c'p} \doublehat{u}_{ip} + \sum_{q = 1}^Q \beta_{c'q} w_{iq} + \sum_{r = 1}^R \gamma_{c'r} v_{ir} } } \right) \\
+    & +
+    \sum_{i:y_i \neq c} \log\left( \frac{\exp{\sum_{p = 1}^P \alpha_{cp} \doublehat{u}_{ip} + \sum_{q = 1}^Q \beta_{cq} w_{iq} + \sum_{r = 1}^R \gamma_{cr} v_{ir} }}{1 + \sum^C_{{c'}= 1} \exp{\sum_{p = 1}^P \alpha_{c'p} \doublehat{u}_{ip} + \sum_{q = 1}^Q \beta_{c'q} w_{iq} + \sum_{r = 1}^R \gamma_{c'r} v_{ir} } } \right),
+\end{split}
+\end{equation}
+
+where $S = {(y_1, z_1), \dots, (y_n, z_n)}$ denotes the set of observations with $z_i = (z_{i1}, \dots, z_{iT}) = (\doublehat{u}_{i1}, \dots, \doublehat{u}_{iP}, w_{i1}, \dots, w_{iQ},  v_{i1}, \dots, v_{iR})$. In the presence of a penalty terms for the weather and genomic covariate sets, we maximize a modified version of Eqn. \ref{eq:log-lik}:
+
+\begin{equation} \label{eq:pen-log}
+    f(\theta_{ct}|S) - \lambda_1 |\beta_{cq}| - \lambda_2 |\gamma_{cr}|.
+\end{equation}
+
+Using the second order Taylor series approximation, the coefficients are updated in the $(k+1)$-th NR iteration as follows:
+
+\begin{align} \label{eq:nr-update1}
+    \theta_{ct}^{k+1} (L) & = \theta_{ct}^{k} - s \frac{f' \left(\theta_{ct}^{k} \right) + \max(\lambda_1, \lambda_2, 0)}{f''\left(\theta_{ct}^{k}\right)}  \\ \label{eq:nr-update2}
+    \theta_{ct}^{k+1} (R) & = \theta_{ct}^{k} - s \frac{f' \left(\theta_{ct}^{k} \right) - \max(\lambda_1, \lambda_2, 0)}{f''\left(\theta_{ct}^{k}\right)}
+\end{align}
+
+
+More specifically, the NR iteration updates for each of the different data types are given by the following equations:
+
+\begin{align*}
+\alpha_{cp}^{k+1} & = \alpha_{cp}^{k} - s \frac{f' \left(\theta_{ct}^{k} \right)}{f''\left(\theta_{ct}^{k}\right)} \\
+\beta_{cq}^{k+1} (L) & = \beta_{cq}^{k} - s \frac{f' \left(\theta_{ct}^{k} \right) + \lambda_1}{f''\left(\theta_{ct}^{k}\right)}   &   \beta_{cq}^{k+1} (R) & = \beta_{cq}^{k} - s \frac{f' \left(\theta_{ct}^{k} \right) - \lambda_1}{f''\left(\theta_{ct}^{k}\right)}  \\
+\gamma_{cr}^{k+1} (L) & = \gamma_{cr}^{k} - s \frac{f' \left(\theta_{ct}^{k} \right) + \lambda_2}{f''\left(\theta_{ct}^{k}\right)}   &   \beta_{cq}^{k+1} (R) & = \beta_{cq}^{k} - s \frac{f' \left(\theta_{ct}^{k} \right) - \lambda_2}{f''\left(\theta_{ct}^{k}\right)}.
+\end{align*}
+
+Here, $L$ and $R$ represent the left- and right-derivatives of Eqn. \ref{eq:pen-log} with respect to $\theta_{ct}$. Following the optimization solution provided in (Wu and Hastie 2009), if $\theta_{ct}^{k+1} (L) < 0$, then we set $\theta_{ct}^{k+1}  = \theta_{ct}^{k+1} (L)$ and if $\theta_{ct}^{k+1} (L) > 0$, we set $\theta_{ct}^{k+1}  = \theta_{ct}^{k+1} (R)$. If either $\theta_{ct}^{k+1} (L) = 0$ or $\theta_{ct}^{k+1} (R) = 0$, then we set $\theta_{ct}^{k+1}  = 0$. The iteration process continues until convergence criteria are met. \\
+
+\subsection{Algorithm}
+
+We initialize the algorithm by setting $\theta_{ct} = 0$ for all $c$ and $t$. Suppose we denote the $k$-th penalized log-likelihood from Eqn. \ref{eq:pen-log} as PLL$_m(c, t)$. 
+\begin{enumerate}
+    \item Update each $\theta_{ct}$  using the NR update rules from Eqns. \ref{eq:nr-update1} and \ref{eq:nr-update2}. Continue iterations until:
+    \begin{equation} \label{eq:pll-1}
+        |PLL_m(c, t) - PLL_{m+1}(c,t)| \leq \epsilon |PLL_{m+1}(c,t) + 1|, \text{and}
+    \end{equation}
+    \begin{equation}\label{eq:pll-2}
+        PLL_m(c, t) \leq PLL_{m+1}(c,t).
+    \end{equation}
+    \item The NR updates start with $s = 1$. If the $\theta_{ct}^{m+1}$ does not satisfy Eqns. \ref{eq:pll-1} or \ref{eq:pll-2}, we repeat the procedure using $ s= 1/2, 1/2^2, 1/2^3, \dots, 1/2^10$. If the PLL does not improve with changing $s$, we set $\theta_{ct}^{m+1} = \theta_{ct}^{m}$.
+    \item Stop the iteration process when no variable is selected. 
+\end{enumerate}
+
+In the proposed algorithm, there are four hyperparameters that need to be tuned - $s, \epsilon,\lambda_1,$ and $\lambda_2$. We start with step size $s=1$ as a reasonable value for the parameter and vary it by halving it succesively until convergence criteria are met. The $\epsilon$ value is set to $10^{-4}$ as default, but it can be varied. We use a cross-validation grid-search to find the optimal values of $\lambda_1$ and $\lambda_2$, testing various combinations of $\lambda_1$ and $\lambda_2$ ranging from 1 to 10. \\ 
+
+\section{Data}
+
+\section{Results and Discussions}
+
+\section{Conclusion}
